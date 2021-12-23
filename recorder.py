@@ -1,27 +1,9 @@
-# -*- coding: utf-8 -*-
-'''recorder.py
-Provides WAV recording functionality via two approaches:
-Blocking mode (record for a set duration):
->>> rec = Recorder(channels=2)
->>> with rec.open('blocking.wav', 'wb') as recfile:
-...     recfile.record(duration=5.0)
-Non-blocking mode (start and stop recording):
->>> rec = Recorder(channels=2)
->>> with rec.open('nonblocking.wav', 'wb') as recfile2:
-...     recfile2.start_recording()
-...     time.sleep(5.0)
-...     recfile2.stop_recording()
-'''
-
 import pyaudio
 import wave
 import time 
+from datetime import datetime
 
 class Recorder(object):
-    '''A recorder class for recording audio to a WAV file.
-    Records in mono by default.
-    '''
-
     def __init__(self, channels=1, rate=44100, frames_per_buffer=1024):
         self.channels = channels
         self.rate = rate
@@ -99,24 +81,26 @@ class RecordingFile(object):
         wavefile.setframerate(self.rate)
         return wavefile
 
-def get_available_input_devices():
+def get_available_io_devices():
     p = pyaudio.PyAudio()
     info = p.get_host_api_info_by_index(0)
     numdevices = info.get("deviceCount")
 
-    input_devices = [
+    io_devices = [
         p.get_device_info_by_host_api_device_index(0, i)
         for i in range(numdevices) 
     ]
-    return input_devices
+    return io_devices
+
+io_devices = get_available_io_devices()
+for device in io_devices:
+    print(f"{device['index']} - Device name: {device['name']}, Max input channels: {device['maxInputChannels']}, Max output channels:{device['maxOutputChannels']}")
+
+now = datetime.now().strftime("%Y-%m-%d--%H-%M-%S")
 
 
 rec = Recorder(channels=1)
-
-input_devices = get_available_input_devices()
-print(input_devices)
-
-with rec.open('nonblocking.wav', 'wb') as recfile2:
+with rec.open(f'{now}.wav', 'wb') as recfile2:
     recfile2.start_recording()
-    time.sleep(15.0)
+    time.sleep(5.0)
     recfile2.stop_recording()
