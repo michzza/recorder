@@ -14,3 +14,5 @@ with rec.open('nonblocking.wav', 'wb') as recfile2:
   recfile2.start_recording()
   time.sleep(5.0)
   recfile2.stop_recording() ```
+
+Function `get_available_io_devices` returns a list of available input/output devices on the machine.
